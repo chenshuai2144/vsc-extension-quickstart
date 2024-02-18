@@ -14,7 +14,7 @@ export function provideCompletionItems(
     const lineText = line.text.substring(0, position.character);
 
     // 简单匹配，只要当前光标前的字符串为`this.dependencies.`都自动带出所有的依赖
-    if (lineText.includes('this.dependencies') && projectPath) {
+    if (lineText.includes('form ') && projectPath) {
       const json = require(slash(`${projectPath}/package.json`));
       const dependencies = Object.keys(json.dependencies || {}).concat(
         Object.keys(json.devDependencies || {})
