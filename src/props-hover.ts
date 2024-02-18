@@ -15,10 +15,10 @@ export function provideHover(document: TextDocument, position: Position) {
   const fileName = slash(document.fileName);
   const workDir = getProjectPath(document);
   const word = document.getText(document.getWordRangeAtPosition(position));
-
+  const line = document.lineAt(position);
   if (/\/package\.json$/.test(fileName)) {
     const packageNameRegex = /"([^"]+)":/;
-    const line = document.lineAt(position);
+
     const matches = line.text.match(packageNameRegex) || [];
     const packageName = matches.length > 1 ? matches?.[1] : word;
     let destPath = `${workDir}/node_modules/${packageName.replace(
@@ -44,6 +44,21 @@ export function provideHover(document: TextDocument, position: Position) {
 
     if (api) {
       return new vscode.Hover(api.md);
+    }
+  }
+
+  if (['src/app.tsx', 'src/app.ts'].includes(relativePath)) {
+    if (line.text.startsWith('export const ')) {
+      const apiJson = require('@ant-design/doc/api/umi.json');
+
+      let api = apiJson
+        ?.find((item: any) => item.title === '运行时配置')
+        ?.properties?.find?.((item: any) => item.title === '配置项')
+        ?.property?.find?.((item: any) => item.title === word);
+
+      if (api) {
+        return new vscode.Hover(api.md);
+      }
     }
   }
 
