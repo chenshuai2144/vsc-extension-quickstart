@@ -47,14 +47,27 @@ export function provideHover(document: TextDocument, position: Position) {
     }
   }
 
-  if (['src/app.tsx', 'src/app.ts'].includes(relativePath)) {
-    if (line.text.startsWith('export const ')) {
+  if (
+    ['src/app.tsx', 'src/app.ts', 'src/requestErrorConfig.ts'].includes(
+      relativePath
+    )
+  ) {
+    if (
+      line.text.startsWith('export const ') ||
+      line.text.startsWith('export async function ') ||
+      line.text.startsWith('export function ')
+    ) {
       const apiJson = require('@ant-design/doc/api/umi.json');
 
       let api = apiJson
         ?.find((item: any) => item.title === '运行时配置')
         ?.properties?.find?.((item: any) => item.title === '配置项')
-        ?.property?.find?.((item: any) => item.title === word);
+        ?.property?.find?.((item: any) => {
+          if (word === 'getInitialState') {
+            return item.title === '数据流';
+          }
+          return item.title === word;
+        });
 
       if (api) {
         return new vscode.Hover(api.md);
