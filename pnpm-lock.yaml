@@ -4,6 +4,11 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+dependencies:
+  '@ant-design/doc':
+    specifier: ^1.0.0
+    version: 1.0.0
+
 devDependencies:
   '@types/mocha':
     specifier: ^10.0.6
@@ -39,6 +44,10 @@ packages:
     resolution: {integrity: sha512-1Yjs2SvM8TflER/OD3cOjhWWOZb58A2t7wpE2S9XfBYTiIl+XFhQG2bjy4Pu1I+EAlCNUzRDYDdFwFYUKvXcIA==}
     engines: {node: '>=0.10.0'}
     dev: true
+
+  /@ant-design/doc@1.0.0:
+    resolution: {integrity: sha512-DYp3bXeLq1bPnQWeGq5prrrTwy8gQYhBVfGKQGiOf6RanOMpG4FeIDOA2xnWQCdNbrduS0jYNDSelUQfv6ngbg==}
+    dev: false
 
   /@eslint-community/eslint-utils@4.4.0(eslint@8.56.0):
     resolution: {integrity: sha512-1/sA4dwrzBAyeUoQ6oxahHKmrZvsnLCg4RfxW3ZFGGmQkSNQPFNLV9CUEFQP1x9EYXHTo5p6xdhZM1Ne9p/AfA==}
