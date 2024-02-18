@@ -14,28 +14,21 @@ export function provideHover(document: TextDocument, position: Position) {
   const fileName = slash(document.fileName);
   const workDir = path.dirname(fileName);
   const word = document.getText(document.getWordRangeAtPosition(position));
-
+  const packageNameRegex = /"([^"]+)":/;
+  const line = document.lineAt(position);
+  const matches = line.text.match(packageNameRegex) || [];
+  const packageName = matches.length > 1 ? matches?.[1] : word;
   if (/\/package\.json$/.test(fileName)) {
-    const json = document.getText();
-    if (
-      new RegExp(
-        `"(dependencies|devDependencies)":\\s*?\\{[\\s\\S]*?${word.replace(
-          /\//g,
-          '\\/'
-        )}[\\s\\S]*?\\}`,
-        'gm'
-      ).test(json)
-    ) {
-      let destPath = `${workDir}/node_modules/${word.replace(
-        /"/g,
-        ''
-      )}/package.json`;
-      if (fs.existsSync(destPath)) {
-        const content = require(destPath);
-        return new vscode.Hover(
-          `* **名称**：${content.name}\n* **版本**：${content.version}\n* **许可协议**：${content.license}`
-        );
-      }
+    let destPath = `${workDir}/node_modules/${packageName.replace(
+      /"/g,
+      ''
+    )}/package.json`;
+
+    if (fs.existsSync(destPath)) {
+      const content = require(destPath);
+      return new vscode.Hover(
+        `* **名称**：${content.name}\n* **当前安装版本**：${content.version}`
+      );
     }
   }
 }
