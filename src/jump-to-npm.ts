@@ -89,7 +89,9 @@ export function provideDefinition(document: TextDocument, position: Position) {
         fileUrl = filePath + '.jsx';
       }
 
-      if (!fileUrl) return null;
+      if (!fileUrl) {
+        return null;
+      }
 
       return {
         targetUri: vscode.Uri.file(fileUrl),
