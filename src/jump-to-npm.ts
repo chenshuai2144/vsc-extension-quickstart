@@ -72,18 +72,35 @@ export function provideDefinition(document: TextDocument, position: Position) {
       line.text?.trim().startsWith('component')
     ) {
       const filePath = path.join(projectPath, 'src', 'pages', match?.[1]);
+      let fileUrl = null;
       if (fs.existsSync(path.join(filePath, 'index.tsx'))) {
-        const codeLocation: LocationLink = {
-          targetUri: vscode.Uri.file(path.join(filePath, 'index.tsx')),
-          targetRange: new vscode.Range(0, 0, 0, 0),
-          originSelectionRange: new vscode.Range(
-            new Position(position.line, match.index),
-            // 2是因为有两个引号
-            new Position(position.line, match.index + match[1].length + 2)
-          ),
-        };
-        return codeLocation;
+        fileUrl = path.join(filePath, 'index.tsx');
       }
+
+      if (fs.existsSync(path.join(filePath, 'index.jsx'))) {
+        fileUrl = path.join(filePath, 'index.jsx');
+      }
+
+      if (fs.existsSync(filePath + '.tsx')) {
+        fileUrl = filePath + '.tsx';
+      }
+
+      if (fs.existsSync(filePath + '.jsx')) {
+        fileUrl = filePath + '.jsx';
+      }
+
+      if (!fileUrl) return null;
+
+      return {
+        targetUri: vscode.Uri.file(fileUrl),
+        targetRange: new vscode.Range(0, 0, 0, 0),
+        originSelectionRange: new vscode.Range(
+          new Position(position.line, match.index),
+          // 2是因为有两个引号
+          new Position(position.line, match.index + match[1].length + 2)
+        ),
+      };
     }
+    return null;
   }
 }
