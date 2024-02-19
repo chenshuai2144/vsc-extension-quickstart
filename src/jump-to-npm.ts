@@ -5,7 +5,7 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as util from './util';
-import { CancellationToken, Position, TextDocument } from 'vscode';
+import { Position, TextDocument, LocationLink } from 'vscode';
 
 /**
  * 查找文件定义的provider，匹配到了就return一个location，否则不做处理
@@ -17,6 +17,7 @@ import { CancellationToken, Position, TextDocument } from 'vscode';
 export function provideDefinition(document: TextDocument, position: Position) {
   const fileName = util.slash(document.fileName);
   const workDir = util.slash(path.dirname(fileName));
+  const projectPath = util.getProjectPath(document);
   const word = document.getText(document.getWordRangeAtPosition(position));
   const line = document.lineAt(position);
 
@@ -49,6 +50,40 @@ export function provideDefinition(document: TextDocument, position: Position) {
       );
     } catch (error) {
       console.log(error);
+    }
+  }
+  const relativePath = util.slash(path.relative(projectPath, fileName));
+  if (relativePath.includes('node_modules')) {
+    return;
+  }
+
+  if (
+    ['config/routes.ts'].includes(relativePath) ||
+    ['config/config.ts'].includes(relativePath)
+  ) {
+    const regex = /'([^']+)'/;
+    const match = line.text.match(regex);
+
+    if (
+      match &&
+      match.index &&
+      match?.length > 1 &&
+      match?.[1].includes(word) &&
+      line.text?.trim().startsWith('component')
+    ) {
+      const filePath = path.join(projectPath, 'src', 'pages', match?.[1]);
+      if (fs.existsSync(path.join(filePath, 'index.tsx'))) {
+        const codeLocation: LocationLink = {
+          targetUri: vscode.Uri.file(path.join(filePath, 'index.tsx')),
+          targetRange: new vscode.Range(0, 0, 0, 0),
+          originSelectionRange: new vscode.Range(
+            new Position(position.line, match.index),
+            // 2是因为有两个引号
+            new Position(position.line, match.index + match[1].length + 2)
+          ),
+        };
+        return codeLocation;
+      }
     }
   }
 }
